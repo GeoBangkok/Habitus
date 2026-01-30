@@ -1,6 +1,7 @@
 import SwiftUI
 import MapKit
 import AuthenticationServices
+import Combine
 
 // MARK: - Onboarding View Model
 class OnboardingViewModel: ObservableObject {

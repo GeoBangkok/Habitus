@@ -1,5 +1,6 @@
 import SwiftUI
 import MapKit
+import Combine
 
 // MARK: - Stub Views (To be implemented)
 
@@ -244,7 +245,7 @@ struct Conversation: Identifiable {
 
 // MARK: - View Model Stubs
 
-class InboxViewModel: ObservableObject {
+final class InboxViewModel: ObservableObject {
     @Published var conversations: [Conversation] = [
         Conversation(
             propertyAddress: "123 Ocean Drive",
@@ -254,7 +255,7 @@ class InboxViewModel: ObservableObject {
     ]
 }
 
-class ProfileViewModel: ObservableObject {
+final class ProfileViewModel: ObservableObject {
     @Published var userName = "John Doe"
     @Published var userEmail = "john@example.com"
     @Published var timeline = UserProfile.Timeline.threeToTwelve

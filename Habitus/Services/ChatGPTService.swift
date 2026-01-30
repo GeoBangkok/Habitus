@@ -247,11 +247,20 @@ struct RankedProperties {
     let clarifyingQuestion: String
 }
 
-struct RankedProperty {
+struct RankedProperty: Identifiable {
+    let id: String
     let property: Property
     let rank: Int
     let reasons: [String]
     let risk: String
+
+    init(property: Property, rank: Int, reasons: [String], risk: String) {
+        self.id = property.id
+        self.property = property
+        self.rank = rank
+        self.reasons = reasons
+        self.risk = risk
+    }
 }
 
 struct MessageSuggestion {

@@ -48,7 +48,7 @@ struct PropertyDetailView: View {
                         // Key Details
                         HStack(spacing: 20) {
                             DetailItem(icon: "bed.double", value: "\(property.bedrooms) bed")
-                            DetailItem(icon: "drop", value: "\(property.bathrooms, specifier: "%.1f") bath")
+                            DetailItem(icon: "drop", value: String(format: "%.1f bath", property.bathrooms))
                             if let sqft = property.squareFeet {
                                 DetailItem(icon: "square", value: "\(sqft) sqft")
                             }
