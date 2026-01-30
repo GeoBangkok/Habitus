@@ -1,32 +1,26 @@
 //
 //  HabitusApp.swift
-//  Habitus
+//  DreamHomes OS
 //
 //  Created by standard on 1/29/26.
 //
 
 import SwiftUI
-import SwiftData
 
 @main
-struct HabitusApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+struct DreamHomesApp: App {
+    @StateObject private var appState = AppState.shared
+    @State private var showOnboarding = true
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if showOnboarding && !appState.isAuthenticated {
+                OnboardingView()
+                    .environmentObject(appState)
+            } else {
+                MainTabView()
+                    .environmentObject(appState)
+            }
         }
-        .modelContainer(sharedModelContainer)
     }
 }

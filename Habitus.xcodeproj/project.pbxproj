@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9A255EB52F2C6897000ACC21 /* Habitus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Habitus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A255EB52F2C6897000ACC21 /* Habitus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Habitus.app; path = "DreamHomes OS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A255EC42F2C689A000ACC21 /* HabitusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HabitusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A255ECE2F2C689A000ACC21 /* HabitusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HabitusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
