@@ -14,6 +14,7 @@ class AppState: ObservableObject {
 
     private init() {
         loadUser()
+        checkAppleSignInStatus()
     }
 
     func loadUser() {
@@ -22,6 +23,46 @@ class AppState: ObservableObject {
            let user = try? JSONDecoder().decode(User.self, from: userData) {
             self.currentUser = user
             self.isAuthenticated = !user.isAnonymous
+        }
+    }
+
+    func checkAppleSignInStatus() {
+        // Check if user has signed in with Apple before
+        if let appleUserID = KeychainHelper.shared.get(key: "appleUserID") {
+            // User has signed in before, restore their session
+            let email = KeychainHelper.shared.get(key: "userEmail")
+            let name = KeychainHelper.shared.get(key: "userName")
+
+            let user = User(
+                id: appleUserID,
+                email: email,
+                name: name,
+                profile: nil,
+                savedPropertyIds: [],
+                viewedPropertyIds: [],
+                passedPropertyIds: [],
+                createdAt: Date(),
+                lastActiveAt: Date()
+            )
+
+            self.currentUser = user
+            self.isAuthenticated = true
+        } else if let guestID = KeychainHelper.shared.get(key: "guestUserID") {
+            // Guest user
+            let user = User(
+                id: guestID,
+                email: nil,
+                name: "Guest",
+                profile: nil,
+                savedPropertyIds: [],
+                viewedPropertyIds: [],
+                passedPropertyIds: [],
+                createdAt: Date(),
+                lastActiveAt: Date()
+            )
+
+            self.currentUser = user
+            self.isAuthenticated = false
         }
     }
 
@@ -39,6 +80,13 @@ class AppState: ObservableObject {
         isAuthenticated = false
         savedProperties.removeAll()
         UserDefaults.standard.removeObject(forKey: "currentUser")
+        UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
+
+        // Clear Keychain data
+        KeychainHelper.shared.delete(key: "appleUserID")
+        KeychainHelper.shared.delete(key: "userEmail")
+        KeychainHelper.shared.delete(key: "userName")
+        KeychainHelper.shared.delete(key: "guestUserID")
     }
 }
 
