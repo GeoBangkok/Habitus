@@ -69,96 +69,79 @@ struct MainTabView: View {
 
 // MARK: - Explore View
 struct ExploreView: View {
-    @StateObject private var viewModel = ExploreViewModel()
-    @State private var selectedCollection: PropertyCollection?
-    @State private var showingFilters = false
+    @State private var exploreMode: ExploreMode = .browse
+    @State private var showingModeSelector = false
+
+    enum ExploreMode: String, CaseIterable {
+        case swipe = "Swipe"
+        case browse = "Browse"
+
+        var icon: String {
+            switch self {
+            case .swipe: return "square.stack.3d.up.fill"
+            case .browse: return "square.grid.2x2"
+            }
+        }
+
+        var description: String {
+            switch self {
+            case .swipe: return "Tinder-style swiping"
+            case .browse: return "Map and grid view"
+            }
+        }
+    }
 
     var body: some View {
         NavigationView {
-            ZStack {
-                // Map View
-                MapView(region: $viewModel.region, properties: viewModel.visibleProperties)
-                    .ignoresSafeArea()
-
-                // Bottom Sheet with Collections and Feed
-                VStack {
-                    Spacer()
-
-                    VStack(spacing: 0) {
-                        // Handle
-                        RoundedRectangle(cornerRadius: 2.5)
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 40, height: 5)
-                            .padding(.top, 8)
-
-                        // Collections
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(PropertyCollection.defaultCollections) { collection in
-                                    CollectionChip(collection: collection) {
-                                        selectedCollection = collection
-                                        viewModel.filterByCollection(collection)
-                                    }
-                                }
-                            }
-                            .padding()
-                        }
-
-                        // Feed
-                        ScrollView {
-                            LazyVStack(spacing: 16) {
-                                // AI Micro-insight card (after 3 swipes)
-                                if viewModel.shouldShowInsightCard {
-                                    MicroInsightCard(
-                                        insight: viewModel.userInsight,
-                                        onYes: {
-                                            viewModel.applyInsightPreferences()
-                                        },
-                                        onKeepBrowsing: {
-                                            viewModel.dismissInsight()
-                                        }
-                                    )
-                                }
-
-                                ForEach(viewModel.feedProperties) { property in
-                                    PropertyCard(
-                                        property: property,
-                                        onSave: { viewModel.saveProperty(property) },
-                                        onPass: { viewModel.passProperty(property) },
-                                        onMessage: { viewModel.messageAboutProperty(property) }
-                                    )
-                                }
-                            }
-                            .padding()
-                        }
-                    }
-                    .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
-                    .background(.regularMaterial)
-                    .cornerRadius(20, corners: [.topLeft, .topRight])
-                }
-            }
-            .navigationBarHidden(true)
-            .overlay(alignment: .top) {
-                // Custom Navigation Bar
+            VStack(spacing: 0) {
+                // Mode Selector Bar
                 HStack {
-                    Image("AppLogo")
-                        .resizable()
-                        .frame(width: 32, height: 32)
+                    Text("Explore")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
 
                     Spacer()
 
-                    Button(action: { showingFilters = true }) {
-                        Image(systemName: "slider.horizontal.3")
-                            .padding(8)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
+                    Button(action: { showingModeSelector = true }) {
+                        HStack {
+                            Image(systemName: exploreMode.icon)
+                            Text(exploreMode.rawValue)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.1))
+                        .foregroundColor(.blue)
+                        .cornerRadius(8)
                     }
                 }
                 .padding()
+
+                // Content based on mode
+                Group {
+                    switch exploreMode {
+                    case .swipe:
+                        SwipeModeView()
+                    case .browse:
+                        BrowseModeView()
+                    }
+                }
             }
+            .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showingFilters) {
-            FiltersView(filters: $viewModel.filters)
+        .actionSheet(isPresented: $showingModeSelector) {
+            ActionSheet(
+                title: Text("Choose Explore Mode"),
+                message: Text("How would you like to browse properties?"),
+                buttons: [
+                    .default(Text("🃏 Swipe Mode - Tinder-style cards")) {
+                        exploreMode = .swipe
+                    },
+                    .default(Text("🗺 Browse Mode - Map and grid")) {
+                        exploreMode = .browse
+                    },
+                    .cancel()
+                ]
+            )
         }
     }
 }

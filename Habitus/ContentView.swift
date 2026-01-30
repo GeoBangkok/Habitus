@@ -9,32 +9,46 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var appState = AppState.shared
-    @State private var showOnboarding = true
+    @State private var showLogin = true
+    @State private var showOnboarding = false
 
     var body: some View {
         Group {
-            if showOnboarding && !appState.isAuthenticated {
-                OnboardingView()
+            if !appState.isAuthenticated && showLogin {
+                // Show login screen for new users
+                LoginView()
+                    .environmentObject(appState)
+            } else if showOnboarding && !hasCompletedOnboarding() {
+                // Show onboarding qualification after login
+                OnboardingQualificationView()
                     .environmentObject(appState)
             } else {
+                // Show main app
                 MainTabView()
                     .environmentObject(appState)
             }
         }
         .onAppear {
-            // Check if user has completed onboarding
-            checkOnboardingStatus()
+            checkAuthStatus()
+        }
+        .onReceive(appState.$isAuthenticated) { isAuthenticated in
+            if isAuthenticated {
+                showLogin = false
+                showOnboarding = !hasCompletedOnboarding()
+            }
         }
     }
 
-    private func checkOnboardingStatus() {
-        // Check if user has seen onboarding before
-        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-
-        // If authenticated or has completed onboarding, skip to main app
-        if appState.isAuthenticated || hasCompletedOnboarding {
+    private func checkAuthStatus() {
+        // Check if user has authenticated before
+        if appState.isAuthenticated || KeychainHelper.shared.get(key: "appleUserID") != nil {
+            showLogin = false
             showOnboarding = false
         }
+    }
+
+    private func hasCompletedOnboarding() -> Bool {
+        UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     }
 }
 
