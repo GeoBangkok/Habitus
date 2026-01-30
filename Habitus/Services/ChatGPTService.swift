@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - ChatGPT API Service for GPT-5 nano
-class ChatGPTService: ObservableObject {
+class ChatGPTService {
     static let shared = ChatGPTService()
 
     private var apiKey: String {

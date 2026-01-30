@@ -2,6 +2,80 @@ import SwiftUI
 import MapKit
 import AuthenticationServices
 
+// MARK: - Onboarding View Model
+class OnboardingViewModel: ObservableObject {
+    @Published var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 27.8006, longitude: -82.7946), // Florida center
+        span: MKCoordinateSpan(latitudeDelta: 2.0, longitudeDelta: 2.0)
+    )
+    @Published var visibleProperties: [Property] = []
+    @Published var savedProperties: [Property] = []
+    @Published var passedProperties: [Property] = []
+    @Published var hasInteracted = false
+    @Published var isAuthenticated = false
+    @Published var sessionDuration: TimeInterval = 0
+    @Published var detailViewCount = 0
+
+    private var sessionStart = Date()
+    private var timer: Timer?
+
+    init() {
+        loadProperties()
+        startSessionTimer()
+    }
+
+    func loadProperties() {
+        // Mock data - replace with actual API call
+        visibleProperties = MockData.sampleProperties
+    }
+
+    func filterByCollection(_ collection: PropertyCollection) {
+        // Apply collection filter to properties
+        // This would typically call an API with the filter parameters
+        hasInteracted = true
+    }
+
+    func saveProperty(_ property: Property) {
+        if !savedProperties.contains(where: { $0.id == property.id }) {
+            savedProperties.append(property)
+            hasInteracted = true
+            trackAction(.save, property: property)
+        }
+    }
+
+    func passProperty(_ property: Property) {
+        if !passedProperties.contains(where: { $0.id == property.id }) {
+            passedProperties.append(property)
+            hasInteracted = true
+            trackAction(.pass, property: property)
+        }
+    }
+
+    func authenticateUser(_ user: User) {
+        isAuthenticated = true
+        AppState.shared.signIn(user: user)
+    }
+
+    private func trackAction(_ action: UserAction.ActionType, property: Property) {
+        // Track user action for personalization
+        let action = UserAction(
+            id: UUID().uuidString,
+            userId: AppState.shared.currentUser?.id ?? "anonymous",
+            propertyId: property.id,
+            action: action,
+            timestamp: Date(),
+            metadata: nil
+        )
+        // Send to backend
+    }
+
+    private func startSessionTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            self.sessionDuration = Date().timeIntervalSince(self.sessionStart)
+        }
+    }
+}
+
 struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @State private var showingAuthSheet = false
@@ -307,4 +381,64 @@ struct RoundedCorner: Shape {
         )
         return Path(path.cgPath)
     }
+}
+
+// MARK: - Mock Data
+struct MockData {
+    static let sampleProperties: [Property] = [
+        Property(
+            id: "1",
+            address: "123 Ocean Drive",
+            city: "Miami Beach",
+            zipCode: "33139",
+            price: 550000,
+            bedrooms: 3,
+            bathrooms: 2.5,
+            squareFeet: 2200,
+            lotSize: 0.25,
+            yearBuilt: 2019,
+            propertyType: .singleFamily,
+            listingStatus: .active,
+            daysOnMarket: 15,
+            description: "Modern beachfront home with stunning ocean views",
+            imageUrls: ["https://example.com/image1.jpg"],
+            coordinates: Coordinates(latitude: 25.7617, longitude: -80.1918),
+            mlsNumber: "A12345",
+            dealScore: 85,
+            priceDropAmount: 25000,
+            priceDropPercentage: 4.3,
+            estimatedRent: 4500,
+            floodRisk: .low,
+            neighborhoodScore: 88,
+            aiInsight: nil,
+            insightGeneratedAt: nil
+        ),
+        Property(
+            id: "2",
+            address: "456 Tampa Bay Blvd",
+            city: "Tampa",
+            zipCode: "33602",
+            price: 425000,
+            bedrooms: 4,
+            bathrooms: 3,
+            squareFeet: 2800,
+            lotSize: 0.3,
+            yearBuilt: 2021,
+            propertyType: .singleFamily,
+            listingStatus: .active,
+            daysOnMarket: 8,
+            description: "New construction in family-friendly neighborhood",
+            imageUrls: ["https://example.com/image2.jpg"],
+            coordinates: Coordinates(latitude: 27.9506, longitude: -82.4572),
+            mlsNumber: "B67890",
+            dealScore: 92,
+            priceDropAmount: nil,
+            priceDropPercentage: nil,
+            estimatedRent: 3800,
+            floodRisk: .low,
+            neighborhoodScore: 91,
+            aiInsight: nil,
+            insightGeneratedAt: nil
+        )
+    ]
 }

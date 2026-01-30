@@ -4,7 +4,7 @@ struct AskAssistantView: View {
     @State private var question = ""
     @State private var messages: [ChatMessage] = []
     @State private var isLoading = false
-    @StateObject private var chatGPT = ChatGPTService.shared
+    private let chatGPT = ChatGPTService.shared
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

@@ -3,7 +3,7 @@ import MapKit
 
 struct PropertyDetailView: View {
     let property: Property
-    @StateObject private var chatGPT = ChatGPTService.shared
+    private let chatGPT = ChatGPTService.shared
     @State private var aiInsight: String?
     @State private var showingMessageComposer = false
     @State private var showingTourRequest = false

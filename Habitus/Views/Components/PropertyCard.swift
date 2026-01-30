@@ -8,7 +8,7 @@ struct PropertyCard: View {
 
     @State private var imageOffset: CGSize = .zero
     @State private var showingDetails = false
-    @StateObject private var chatGPT = ChatGPTService.shared
+    private let chatGPT = ChatGPTService.shared
 
     var body: some View {
         VStack(spacing: 0) {
